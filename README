@@ -1,0 +1,29 @@
+A _very_ hacked up version of https://github.com/Hypfer/esp8266-vindriktning-particle-sensor
+
+This one just starts a TCP socket server and listens.
+When someone connects it streams air quality readings.
+
+A bash script like this can insert it into postgres:
+
+#!/bin/bash
+
+while true
+do
+    echo "Reading..."
+    nc 192.168.40.137 9000 | while read L
+    do
+        A=$(echo $L | jq  .[0])
+        B=$(echo $L | jq  .[1])
+        C=$(echo $L | jq  .[2])
+        D=$(echo $L | jq  .[3])
+        E=$(echo $L | jq  .[4])
+        F=$(echo $L | jq  .[5])
+        G=$(echo $L | jq  .[6])
+        H=$(echo $L | jq  .[7])
+        I=$(echo $L | jq  .[8])
+        J=$(echo $L | jq  .[9])
+        PGPASSWORD=THE_SQL_PASSWORD_GOES_HERE_PLEASE psql -h 172.17.0.3 -U THE_SQL_USER_NAME THE_SQL_DATABASE_NAME_TO_USE -c "INSERT INTO airqual (a,b,c,d,e,f,g,h,i,j) VALUES($A, $B, $C, $D, $E, $F, $G, $H, $I, $J)" > /dev/null
+    done
+done
+
+
